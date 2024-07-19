@@ -1,6 +1,7 @@
 import argparse
 from collections.abc import Callable, Collection
 import dataclasses
+import os
 import prometheus_client
 from prometheus_client import Gauge, Enum
 import requests
@@ -122,7 +123,11 @@ def collect(ip: str):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("ip")
+    if "SHELLY_IPS" in os.environ:
+        default_ips = os.environ["SHELLY_IPS"].split(",")
+    else:
+        default_ips = []
+    parser.add_argument("ips", nargs='*', default=default_ips)
 
     args = parser.parse_args()
 
@@ -130,8 +135,12 @@ def main():
     interval_s = 5
     prometheus_client.start_http_server(8000)
 
+    if not args.ips:
+        print("Nothing to do")
+
     while True:
-        collect(args.ip)
+        for ip in args.ips:
+            collect(ip)
         time.sleep(interval_s - ((time.monotonic() - starttime) % interval_s))
 
 
