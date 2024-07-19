@@ -8,4 +8,4 @@ COPY shelly_exporter.py shelly_exporter.py
 
 EXPOSE 8000
 
-CMD exec python shelly_exporter.py
+CMD ["python3", "shelly_exporter.py"]
